@@ -1,0 +1,113 @@
+# Advanced Hybrid DNS Configuration
+# Demonstrates complex routing with multiple provider types
+
+providers:
+  # Multiple public DNS providers for redundancy
+  - name: google-primary
+    type: public
+    config:
+      provider: google
+      timeout: 3.0
+
+  - name: cloudflare-backup
+    type: public
+    config:
+      provider: cloudflare
+      timeout: 3.0
+
+  - name: quad9-security
+    type: public
+    config:
+      provider: quad9
+      timeout: 3.0
+
+  # Private DNS for corporate network
+  - name: office-dns
+    type: private
+    config:
+      servers:
+        - 192.168.1.1
+        - 192.168.1.2
+      timeout: 2.0
+
+  # Cloud DNS providers
+  - name: aws-route53
+    type: cloud
+    config:
+      cloud_provider: aws
+      servers:
+        - 8.8.8.8
+
+  - name: azure-dns
+    type: cloud
+    config:
+      cloud_provider: azure
+      servers:
+        - 1.1.1.1
+
+policies:
+  # Highest priority: Local/internal domains
+  - name: local-network
+    patterns:
+      - "*.local"
+      - "*.lan"
+      - "localhost"
+    providers:
+      - office-dns
+    priority: 1
+
+  # Corporate domains
+  - name: corporate
+    patterns:
+      - "*.company.com"
+      - "*.corp"
+      - "intranet.*"
+    providers:
+      - office-dns
+      - google-primary
+    priority: 5
+
+  # Cloud provider domains
+  - name: aws-infrastructure
+    patterns:
+      - "*.amazonaws.com"
+      - "*.aws.com"
+      - "*.awsstatic.com"
+    providers:
+      - aws-route53
+      - google-primary
+    priority: 10
+
+  - name: azure-infrastructure
+    patterns:
+      - "*.azure.com"
+      - "*.microsoft.com"
+      - "*.windows.net"
+    providers:
+      - azure-dns
+      - google-primary
+    priority: 10
+
+  # Security-focused domains (using Quad9)
+  - name: security-critical
+    patterns:
+      - "*.bank.com"
+      - "*.banking.*"
+      - "*.financial.*"
+    providers:
+      - quad9-security
+      - google-primary
+    priority: 15
+
+  # General internet (load balanced across providers)
+  - name: general-internet
+    patterns:
+      - "*"
+    providers:
+      - cloudflare-backup
+      - google-primary
+      - quad9-security
+    priority: 100
+
+cache:
+  ttl: 300
