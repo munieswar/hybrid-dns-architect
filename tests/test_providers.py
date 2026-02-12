@@ -47,9 +47,10 @@ class TestPublicDNSProvider:
     @patch("dns.resolver.Resolver.resolve")
     def test_resolve_failure(self, mock_resolve):
         """Test DNS resolution failure."""
+        import dns.resolver
         import dns.exception
 
-        mock_resolve.side_effect = dns.exception.NXDOMAIN()
+        mock_resolve.side_effect = dns.resolver.NXDOMAIN()
 
         provider = PublicDNSProvider("test")
         with pytest.raises(dns.exception.DNSException):
