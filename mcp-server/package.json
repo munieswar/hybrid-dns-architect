@@ -1,0 +1,10 @@
+{
+  "name": "hybrid-dns-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP Server for Azure DNS Private Resolver — Hybrid DNS Architecture tools for GitHub Copilot",
+  "type": "module",
+  "main": "index.js",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  }
+}
